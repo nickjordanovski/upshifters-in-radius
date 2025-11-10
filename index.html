@@ -15,13 +15,13 @@
     header.appbar { display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid var(--stroke); }
     header.appbar h1 { font-size:16px; margin:0; letter-spacing:.2px; }
     .badge { margin-left:auto; font-size:12px; color:#a3b1c2; background:#0B121C; border:1px solid var(--stroke); padding:6px 10px; border-radius:999px; }
-    .nick { font-weight:600; }
+    .nick { font-weight:700; }
     #map { width:100%; height:100%; }
     .panel { position:absolute; top:16px; right:16px; z-index:1000; width:min(380px, calc(100% - 32px)); background:var(--panel); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 12px 34px rgba(0,0,0,.45); }
     .panel header { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid var(--stroke); }
     .panel header h2 { margin:0; font-size:14px; color:#cfe3fb; }
     .legend { display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:12px; color:#cbd5e1; }
-    .dot { width:10px;height:10px;border-radius:50%;display:inline-block; }
+    .dot { width:12px;height:12px;border-radius:50%;display:inline-block; }
     .dot.shift { background:var(--warn); }
     .dot.in { background:#22d3ee; }
     .dot.out { background:#94a3b8; }
@@ -30,9 +30,25 @@
     input[type="number"], input[type="text"], input[type="url"], input[type="search"] { width:100%; padding:8px 10px; border-radius:10px; border:1px solid #223043; background:#0A1220; color:#DCEAF8; }
     button { padding:9px 12px; border-radius:10px; border:1px solid var(--stroke); background:#0A1220; color:#E6F3FF; cursor:pointer; }
     button.primary { background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#001018; border:none; font-weight:700; }
-    .footer { padding:8px 14px 14px; font-size:11px; color:#93a5b4; border-top:1px solid var(--stroke); }
+    .footer { padding:8px 14px 14px; font-size:11px; color:#93a5b4; border-top:1px solid var(--stroke); display:flex; justify-content:space-between; align-items:center; }
     a { color:var(--accent); }
     .pill { background:#0B121C; border:1px solid var(--stroke); color:#9fb1c6; padding:6px 10px; border-radius:999px; font-size:12px; }
+
+    /* Bigger, nicer pins */
+    .pin { width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 2px rgba(0,0,0,.2); }
+    .pin-in { background:#22d3ee; }
+    .pin-out { background:#94a3b8; }
+    .pin-shift { width:20px; height:20px; background:var(--warn); border:3px solid #fff; box-shadow:0 0 0 3px rgba(0,0,0,.25); position:relative; }
+    .pin-shift::after {
+      content:""; position:absolute; inset:-6px; border-radius:50%;
+      box-shadow:0 0 0 0 rgba(249,115,22,0.45);
+      animation:pulse 1.8s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow:0 0 0 0 rgba(249,115,22,0.45); }
+      70% { box-shadow:0 0 0 12px rgba(249,115,22,0); }
+      100% { box-shadow:0 0 0 0 rgba(249,115,22,0); }
+    }
   </style>
 </head>
 <body>
@@ -82,7 +98,8 @@
       </div>
     </div>
     <div class="footer">
-      Host on GitHub Pages: put <code>index.html</code> and <code>data.csv</code> in the repo root (or use the CSV URL above). You can override parameters via query string: <code>?csv=...&lat=...&lng=...&miles=15</code>.
+      <span>© Upshift</span>
+      <span>Built by <strong>Nick</strong> with ❤️</span>
     </div>
   </div>
 
@@ -92,8 +109,8 @@
   <script>
     // ---- Defaults (edit if you want) ----
     // Approx for 115 Enterprise Pkwy, West Jefferson, OH (override if you have exact):
-    let SHIFT_LAT = 39.945;   // <-- update if you have exact
-    let SHIFT_LNG = -83.27;   // <-- update if you have exact
+    let SHIFT_LAT = 39.945;
+    let SHIFT_LNG = -83.27;
     let RADIUS_MILES = 15;
 
     const params = new URLSearchParams(window.location.search);
@@ -121,9 +138,10 @@
     const map = L.map('map', { zoomControl:true, preferCanvas:true }).setView([SHIFT_LAT, SHIFT_LNG], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
 
-    const shiftIcon = L.divIcon({ className:'', html:'<div style="width:14px;height:14px;background:var(--warn);border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.25)"></div>' });
-    const insideIcon = L.divIcon({ className:'', html:'<div style="width:10px;height:10px;background:#22d3ee;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.15)"></div>' });
-    const outsideIcon = L.divIcon({ className:'', html:'<div style="width:10px;height:10px;background:#94a3b8;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>' });
+    // Icons using CSS classes for bigger pins
+    const shiftIcon = L.divIcon({ className:'', html:'<div class="pin pin-shift"></div>' });
+    const insideIcon = L.divIcon({ className:'', html:'<div class="pin pin-in"></div>' });
+    const outsideIcon = L.divIcon({ className:'', html:'<div class="pin pin-out"></div>' });
 
     const shiftMarker = L.marker([SHIFT_LAT, SHIFT_LNG], { icon: shiftIcon }).addTo(map).bindPopup('<b>Shift location</b>');
     let radiusCircle = L.circle([SHIFT_LAT, SHIFT_LNG], { radius: milesToMeters(RADIUS_MILES), color:'#22d3ee', weight:1.5, fillOpacity:.06 }).addTo(map);
@@ -156,33 +174,18 @@
     }
 
     function rowToRecord(row) {
-      // Handle two shapes:
-      // 1) With headers like GitHub CSV: email,full_name,phone,city_town,state,zip,profile_location_latitude,profile_location_longitude,last_login_at
-      // 2) Legacy no-header: [id,uuid,email,name,phone,city,state,zip,lat,lng,last_active]
-      const keys = Object.keys(row);
-      const looksHeadered = keys.length > 1; // Papa with header:true gives objects
-
-      if (looksHeadered) {
-        const lat = parseFloat(row.profile_location_latitude ?? row.lat ?? row.latitude);
-        const lng = parseFloat(row.profile_location_longitude ?? row.lng ?? row.longitude);
-        return {
-          email: row.email ?? '',
-          name: row.full_name ?? row.name ?? '',
-          phone: row.phone ?? '',
-          city: row.city_town ?? row.city ?? '',
-          state: row.state ?? '',
-          zip: row.zip ?? '',
-          lat, lng,
-          last_active: row.last_login_at ?? row.last_active ?? ''
-        };
-      } else {
-        // Shouldn't get here with header:true, but keep a fallback
-        const arr = row;
-        return {
-          email: arr[2], name: arr[3], phone: arr[4], city: arr[5], state: arr[6], zip: arr[7],
-          lat: parseFloat(arr[8]), lng: parseFloat(arr[9]), last_active: arr[10]
-        };
-      }
+      const lat = parseFloat(row.profile_location_latitude ?? row.lat ?? row.latitude);
+      const lng = parseFloat(row.profile_location_longitude ?? row.lng ?? row.longitude);
+      return {
+        email: row.email ?? '',
+        name: row.full_name ?? row.name ?? '',
+        phone: row.phone ?? '',
+        city: row.city_town ?? row.city ?? '',
+        state: row.state ?? '',
+        zip: row.zip ?? '',
+        lat, lng,
+        last_active: row.last_login_at ?? row.last_active ?? ''
+      };
     }
 
     let markers = [];
@@ -219,10 +222,8 @@
         const distM = haversine(SHIFT_LAT, SHIFT_LNG, rec.lat, rec.lng);
         const isInside = distM <= milesToMeters(RADIUS_MILES);
 
-        // text filter
         const hay = (rec.name + ' ' + rec.email + ' ' + rec.city).toLowerCase();
         if (q && !hay.includes(q)) return;
-
         if (showOnlyInside && !isInside) return;
 
         const icon = isInside ? insideIcon : outsideIcon;
