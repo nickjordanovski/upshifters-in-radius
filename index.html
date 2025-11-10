@@ -3,43 +3,44 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Upshifter Radius Map</title>
-  <!-- Leaflet CSS -->
+  <title>Upshifter Radius Map — Nick Edition</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- MarkerCluster CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <style>
-    :root { --bg: #0b0f13; --fg: #eaeef2; --muted: #9aa4af; --accent: #7dd3fc; --accent-2: #34d399; --danger:#f97316; }
-    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
-    #app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
-    header { padding: 12px 16px; border-bottom: 1px solid #141a20; display: flex; align-items: center; gap: 12px; }
-    header h1 { font-size: 16px; margin: 0; letter-spacing: 0.2px; }
-    header .pill { background: #111827; border: 1px solid #1f2937; color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
-    #map { width: 100%; height: 100%; }
-    .panel { position: absolute; z-index: 1000; top: 16px; right: 16px; width: min(360px, calc(100% - 32px)); background: #0f1620; border: 1px solid #1f2a37; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
-    .panel header { border-bottom: 1px solid #1f2a37; padding: 12px 14px; display:flex; justify-content: space-between; align-items:center; }
-    .panel header h2 { font-size: 14px; margin:0; color: #cbd5e1; }
-    .panel .content { padding: 12px 14px; display: grid; gap: 10px; }
-    .panel label { display: grid; gap: 6px; font-size: 12px; color: #cbd5e1; }
-    .panel input[type="number"], .panel input[type="text"], .panel input[type="url"] { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #223042; background: #0b1220; color: #dbe7f3; }
-    .panel button { padding: 8px 10px; border-radius: 8px; border: 1px solid #1f2937; background: #0b1220; color: #e5f2ff; cursor: pointer; }
-    .panel button.primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #001018; border: none; font-weight: 600; }
-    .legend { display:flex; gap:10px; align-items:center; font-size:12px; color:#cbd5e1; flex-wrap: wrap; }
-    .dot { width:10px; height:10px; border-radius:999px; display:inline-block; }
-    .in { background:#22d3ee; }
-    .out { background:#94a3b8; }
-    .shift { background:#f97316; }
-    .leaflet-popup-content { color: #0b0f13; }
-    .footer { font-size:11px; color:#94a3b8; padding: 6px 14px 12px 14px; }
-    a { color: var(--accent); }
+    :root { --bg:#070B10; --panel:#0E1621; --stroke:#1E2A39; --fg:#E7EEF7; --muted:#9AA6B2; --accent:#7dd3fc; --accent2:#34d399; --warn:#f97316; }
+    * { box-sizing: border-box; }
+    html, body { height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; }
+    #app { display:grid; grid-template-rows:auto 1fr; height:100%; }
+    header.appbar { display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid var(--stroke); }
+    header.appbar h1 { font-size:16px; margin:0; letter-spacing:.2px; }
+    .badge { margin-left:auto; font-size:12px; color:#a3b1c2; background:#0B121C; border:1px solid var(--stroke); padding:6px 10px; border-radius:999px; }
+    .nick { font-weight:600; }
+    #map { width:100%; height:100%; }
+    .panel { position:absolute; top:16px; right:16px; z-index:1000; width:min(380px, calc(100% - 32px)); background:var(--panel); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 12px 34px rgba(0,0,0,.45); }
+    .panel header { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid var(--stroke); }
+    .panel header h2 { margin:0; font-size:14px; color:#cfe3fb; }
+    .legend { display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:12px; color:#cbd5e1; }
+    .dot { width:10px;height:10px;border-radius:50%;display:inline-block; }
+    .dot.shift { background:var(--warn); }
+    .dot.in { background:#22d3ee; }
+    .dot.out { background:#94a3b8; }
+    .panel .content { padding:12px 14px; display:grid; gap:10px; }
+    label { display:grid; gap:6px; font-size:12px; color:#d3e0ee; }
+    input[type="number"], input[type="text"], input[type="url"], input[type="search"] { width:100%; padding:8px 10px; border-radius:10px; border:1px solid #223043; background:#0A1220; color:#DCEAF8; }
+    button { padding:9px 12px; border-radius:10px; border:1px solid var(--stroke); background:#0A1220; color:#E6F3FF; cursor:pointer; }
+    button.primary { background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#001018; border:none; font-weight:700; }
+    .footer { padding:8px 14px 14px; font-size:11px; color:#93a5b4; border-top:1px solid var(--stroke); }
+    a { color:var(--accent); }
+    .pill { background:#0B121C; border:1px solid var(--stroke); color:#9fb1c6; padding:6px 10px; border-radius:999px; font-size:12px; }
   </style>
 </head>
 <body>
   <div id="app">
-    <header>
+    <header class="appbar">
       <h1>Upshifter Radius Map</h1>
-      <span class="pill">Clusters • CSV loader • 15 mi radius</span>
+      <span class="pill">Clusters • CSV loader • Radius filter</span>
+      <span class="badge">Developed by <span class="nick">Nick</span> with ❤️</span>
     </header>
     <div id="map"></div>
   </div>
@@ -49,14 +50,18 @@
       <h2>Controls</h2>
       <div class="legend">
         <span class="dot shift"></span> Shift
-        <span class="dot in"></span> Inside radius
-        <span class="dot out"></span> Outside radius
+        <span class="dot in"></span> Inside
+        <span class="dot out"></span> Outside
       </div>
     </header>
     <div class="content">
       <label>
-        CSV URL (raw) <small style="color:#94a3b8">Leave blank to load <code>./data.csv</code>. You can also pass <code>?csv=...</code> in the URL.</small>
-        <input type="url" id="csvUrl" placeholder="https://raw.githubusercontent.com/your-org/your-repo/main/data.csv" />
+        CSV URL (raw) — leave blank to load <code>./data.csv</code>. You can also pass <code>?csv=...</code> in the URL.
+        <input type="url" id="csvUrl" placeholder="https://raw.githubusercontent.com/your-org/upshifters-in-radius/main/data.csv" />
+      </label>
+      <label>
+        Quick search (name, email, city)
+        <input type="search" id="search" placeholder="Type to filter markers..." />
       </label>
       <label>
         Shift Latitude
@@ -73,186 +78,189 @@
       <div style="display:flex; gap:8px; flex-wrap: wrap;">
         <button class="primary" id="reload">Reload CSV</button>
         <button id="fitAll">Fit to markers</button>
-        <button id="toggleInside">Show only inside radius</button>
+        <button id="toggleInside">Show only inside</button>
       </div>
-      <div class="footer">
-        Tip: Host on GitHub Pages. Put <code>index.html</code> and <code>data.csv</code> in the repo root (or update CSV URL above).
-      </div>
+    </div>
+    <div class="footer">
+      Host on GitHub Pages: put <code>index.html</code> and <code>data.csv</code> in the repo root (or use the CSV URL above). You can override parameters via query string: <code>?csv=...&lat=...&lng=...&miles=15</code>.
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    // ---- Config (edit these defaults) ----
-    // If you already know the coordinates, set them here:
-    // West Jefferson / 115 Enterprise Pkwy approx; replace with exact if you have it.
-    let SHIFT_LAT = 39.9448;  // TODO: replace with the exact latitude
-    let SHIFT_LNG = -83.3000; // TODO: replace with the exact longitude
+    // ---- Defaults (edit if you want) ----
+    // Approx for 115 Enterprise Pkwy, West Jefferson, OH (override if you have exact):
+    let SHIFT_LAT = 39.945;   // <-- update if you have exact
+    let SHIFT_LNG = -83.27;   // <-- update if you have exact
     let RADIUS_MILES = 15;
 
-    // Read query params for overrides
     const params = new URLSearchParams(window.location.search);
     if (params.get('lat')) SHIFT_LAT = parseFloat(params.get('lat'));
     if (params.get('lng')) SHIFT_LNG = parseFloat(params.get('lng'));
     if (params.get('miles')) RADIUS_MILES = parseFloat(params.get('miles'));
 
-    // Populate control inputs
-    document.getElementById('shiftLat').value = SHIFT_LAT;
-    document.getElementById('shiftLng').value = SHIFT_LNG;
-    document.getElementById('radiusMiles').value = RADIUS_MILES;
+    // UI bind
+    const els = {
+      csvUrl: document.getElementById('csvUrl'),
+      search: document.getElementById('search'),
+      shiftLat: document.getElementById('shiftLat'),
+      shiftLng: document.getElementById('shiftLng'),
+      radiusMiles: document.getElementById('radiusMiles'),
+      reload: document.getElementById('reload'),
+      fitAll: document.getElementById('fitAll'),
+      toggleInside: document.getElementById('toggleInside')
+    };
+    els.shiftLat.value = SHIFT_LAT;
+    els.shiftLng.value = SHIFT_LNG;
+    els.radiusMiles.value = RADIUS_MILES;
+    if (params.get('csv')) els.csvUrl.value = params.get('csv');
 
-    // Initialize map
-    const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([SHIFT_LAT, SHIFT_LNG], 11);
+    // Map
+    const map = L.map('map', { zoomControl:true, preferCanvas:true }).setView([SHIFT_LAT, SHIFT_LNG], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Draw shift marker and radius circle
-    const shiftIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#f97316;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,0.2)"></div>' });
-    const insideIcon = L.divIcon({ className: '', html: '<div style="width:10px;height:10px;background:#22d3ee;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,0.15)"></div>' });
-    const outsideIcon = L.divIcon({ className: '', html: '<div style="width:10px;height:10px;background:#94a3b8;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,0.12)"></div>' });
+    const shiftIcon = L.divIcon({ className:'', html:'<div style="width:14px;height:14px;background:var(--warn);border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.25)"></div>' });
+    const insideIcon = L.divIcon({ className:'', html:'<div style="width:10px;height:10px;background:#22d3ee;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.15)"></div>' });
+    const outsideIcon = L.divIcon({ className:'', html:'<div style="width:10px;height:10px;background:#94a3b8;border:2px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>' });
 
     const shiftMarker = L.marker([SHIFT_LAT, SHIFT_LNG], { icon: shiftIcon }).addTo(map).bindPopup('<b>Shift location</b>');
-    let radiusCircle = L.circle([SHIFT_LAT, SHIFT_LNG], {
-      radius: milesToMeters(RADIUS_MILES),
-      color: '#22d3ee', weight: 1.5, fillOpacity: 0.05
-    }).addTo(map);
+    let radiusCircle = L.circle([SHIFT_LAT, SHIFT_LNG], { radius: milesToMeters(RADIUS_MILES), color:'#22d3ee', weight:1.5, fillOpacity:.06 }).addTo(map);
 
-    // Cluster group
-    const cluster = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 60 });
+    const cluster = L.markerClusterGroup({ chunkedLoading:true, maxClusterRadius:60 });
     map.addLayer(cluster);
 
-    // CSV loader
+    function toRad(x){ return x * Math.PI / 180; }
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = toRad(lat2-lat1);
+      const dLon = toRad(lon2-lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+      return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+    function milesToMeters(m){ return m*1609.344; }
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+
+    // CSV loader with headers
     async function loadCsv(url) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve,reject)=>{
         Papa.parse(url, {
-          download: true,
-          header: false,   // your CSV has no header in the example
-          skipEmptyLines: true,
-          complete: results => resolve(results.data),
+          download:true,
+          header:true,       // expect headers
+          skipEmptyLines:true,
+          complete: r => resolve(r.data),
           error: reject
         });
       });
     }
 
-    // Convert degrees to radians
-    function toRad(x){ return x * Math.PI / 180; }
-    function haversine(lat1, lon1, lat2, lon2) {
-      const R = 6371e3; // meters
-      const φ1 = toRad(lat1), φ2 = toRad(lat2);
-      const Δφ = toRad(lat2 - lat1);
-      const Δλ = toRad(lon2 - lon1);
-      const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c; // in meters
-    }
-    function milesToMeters(m) { return m * 1609.344; }
+    function rowToRecord(row) {
+      // Handle two shapes:
+      // 1) With headers like GitHub CSV: email,full_name,phone,city_town,state,zip,profile_location_latitude,profile_location_longitude,last_login_at
+      // 2) Legacy no-header: [id,uuid,email,name,phone,city,state,zip,lat,lng,last_active]
+      const keys = Object.keys(row);
+      const looksHeadered = keys.length > 1; // Papa with header:true gives objects
 
-    // Parse each row according to your example format
-    function mapRowToRecord(row) {
-      // Expected columns based on your sample:
-      // 0:id,1:uuid,2:email,3:name,4:phone,5:city,6:state,7:zip,8:lat,9:lng,10:last_active
-      const rec = {
-        id: row[0],
-        uuid: row[1],
-        email: row[2],
-        name: row[3],
-        phone: row[4],
-        city: row[5],
-        state: row[6],
-        zip: row[7],
-        lat: parseFloat(row[8]),
-        lng: parseFloat(row[9]),
-        last_active: row[10]
-      };
-      return rec;
+      if (looksHeadered) {
+        const lat = parseFloat(row.profile_location_latitude ?? row.lat ?? row.latitude);
+        const lng = parseFloat(row.profile_location_longitude ?? row.lng ?? row.longitude);
+        return {
+          email: row.email ?? '',
+          name: row.full_name ?? row.name ?? '',
+          phone: row.phone ?? '',
+          city: row.city_town ?? row.city ?? '',
+          state: row.state ?? '',
+          zip: row.zip ?? '',
+          lat, lng,
+          last_active: row.last_login_at ?? row.last_active ?? ''
+        };
+      } else {
+        // Shouldn't get here with header:true, but keep a fallback
+        const arr = row;
+        return {
+          email: arr[2], name: arr[3], phone: arr[4], city: arr[5], state: arr[6], zip: arr[7],
+          lat: parseFloat(arr[8]), lng: parseFloat(arr[9]), last_active: arr[10]
+        };
+      }
     }
 
-    // Render markers
     let markers = [];
+    let sourceRows = [];
     let showOnlyInside = false;
 
     async function render() {
       cluster.clearLayers();
       markers = [];
 
-      SHIFT_LAT = parseFloat(document.getElementById('shiftLat').value);
-      SHIFT_LNG = parseFloat(document.getElementById('shiftLng').value);
-      RADIUS_MILES = parseFloat(document.getElementById('radiusMiles').value);
-      const csvOverride = document.getElementById('csvUrl').value.trim();
-      const defaultUrl = './data.csv';
-      const queryUrl = params.get('csv');
-      const url = csvOverride || queryUrl || defaultUrl;
+      SHIFT_LAT = parseFloat(els.shiftLat.value);
+      SHIFT_LNG = parseFloat(els.shiftLng.value);
+      RADIUS_MILES = parseFloat(els.radiusMiles.value);
+      const csvOverride = els.csvUrl.value.trim();
+      const url = csvOverride || params.get('csv') || './data.csv';
 
-      // Update center and circle
       shiftMarker.setLatLng([SHIFT_LAT, SHIFT_LNG]);
       radiusCircle.setLatLng([SHIFT_LAT, SHIFT_LNG]);
       radiusCircle.setRadius(milesToMeters(RADIUS_MILES));
 
-      let rows = await loadCsv(url);
+      sourceRows = await loadCsv(url);
+      plot();
+    }
 
-      rows.forEach(row => {
-        const rec = mapRowToRecord(row);
+    function plot() {
+      cluster.clearLayers();
+      markers = [];
+
+      const q = els.search.value.trim().toLowerCase();
+      sourceRows.forEach(row => {
+        const rec = rowToRecord(row);
         if (Number.isNaN(rec.lat) || Number.isNaN(rec.lng)) return;
 
         const distM = haversine(SHIFT_LAT, SHIFT_LNG, rec.lat, rec.lng);
         const isInside = distM <= milesToMeters(RADIUS_MILES);
 
+        // text filter
+        const hay = (rec.name + ' ' + rec.email + ' ' + rec.city).toLowerCase();
+        if (q && !hay.includes(q)) return;
+
         if (showOnlyInside && !isInside) return;
 
         const icon = isInside ? insideIcon : outsideIcon;
-
         const m = L.marker([rec.lat, rec.lng], { icon });
         const popup = `
           <div style="font-size:13px;line-height:1.3">
-            <b>${escapeHtml(rec.name || '')}</b><br/>
-            <div>${escapeHtml(rec.city || '')}, ${escapeHtml(rec.state || '')} ${escapeHtml(rec.zip || '')}</div>
-            <div><a href="mailto:${escapeHtml(rec.email || '')}">${escapeHtml(rec.email || '')}</a></div>
-            <div><a href="tel:${escapeHtml(rec.phone || '')}">${escapeHtml(rec.phone || '')}</a></div>
-            <div style="margin-top:4px;color:#334155">Last active: ${escapeHtml(rec.last_active || '')}</div>
+            <b>${escapeHtml(rec.name)}</b><br/>
+            <div>${escapeHtml(rec.city)}, ${escapeHtml(rec.state)} ${escapeHtml(rec.zip)}</div>
+            <div><a href="mailto:${escapeHtml(rec.email)}">${escapeHtml(rec.email)}</a></div>
+            <div><a href="tel:${escapeHtml(rec.phone)}">${escapeHtml(rec.phone)}</a></div>
+            <div style="margin-top:4px;color:#334155">Last active: ${escapeHtml(rec.last_active)}</div>
             <div style="margin-top:4px;color:#475569">Distance: ${(distM/1609.344).toFixed(2)} mi</div>
-            <div style="margin-top:6px;font-size:12px;color:#64748b">id ${escapeHtml(rec.id || '')} • uuid ${escapeHtml(rec.uuid || '')}</div>
-          </div>
-        `;
+          </div>`;
         m.bindPopup(popup);
         cluster.addLayer(m);
         markers.push(m);
       });
 
-      // Fit bounds to markers + shift
-      fitToAll();
+      fitAll();
     }
 
-    function fitToAll() {
+    function fitAll() {
       const group = new L.featureGroup([shiftMarker, ...markers]);
-      map.fitBounds(group.getBounds().pad(0.2));
+      if (markers.length) map.fitBounds(group.getBounds().pad(0.2));
+      else map.setView([SHIFT_LAT, SHIFT_LNG], 11);
     }
 
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-      })[m]);
-    }
-
-    // Wire up controls
-    document.getElementById('reload').addEventListener('click', render);
-    document.getElementById('fitAll').addEventListener('click', fitToAll);
-    document.getElementById('toggleInside').addEventListener('click', () => {
+    // events
+    els.reload.addEventListener('click', render);
+    els.fitAll.addEventListener('click', fitAll);
+    els.toggleInside.addEventListener('click', () => {
       showOnlyInside = !showOnlyInside;
-      document.getElementById('toggleInside').textContent = showOnlyInside ? 'Show all' : 'Show only inside radius';
-      render();
+      els.toggleInside.textContent = showOnlyInside ? 'Show all' : 'Show only inside';
+      plot();
     });
+    els.search.addEventListener('input', plot);
 
-    // Initial CSV URL input from query if present
-    const qCsv = params.get('csv');
-    if (qCsv) document.getElementById('csvUrl').value = qCsv;
-
-    // First render
+    // boot
     render();
   </script>
 </body>
